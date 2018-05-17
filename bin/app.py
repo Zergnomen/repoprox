@@ -6,7 +6,7 @@ import hashlib
 import os
 import os.path
 proxyPort = os.getenv('PROXY_PORT', 5000)
-myConfile = '../etc/repoprox.conf'
+myConfile = '../etc/repoproxy.conf'
 myConf = configparser.RawConfigParser()
 try:
     myConf.read( myConfile )
@@ -21,11 +21,6 @@ def return_paths():
         returen = returen +"%s\t%s\n" % (a[0], a[1])
     return(returen)
 
-def fetchdata(repopath, filehash, fetchpay):
-    #needs check
-    return(200)
-
-
 app = flask.Flask(__name__)
 
 @app.route("/")
@@ -36,19 +31,25 @@ def usage():
 @app.route('/<repopath>/<path:fetchpay>')
 def get(repopath,fetchpay):
     if(myConf.has_option("paths",repopath)):
-        filehash = hashlib.sha256(repopath.encode('utf-8') + 
-                                  fetchpay.encode('utf-8')).hexdigest() 
+        filehash = hashlib.sha256(repopath.encode('utf-8') +
+                                  fetchpay.encode('utf-8')).hexdigest()
         if not os.path.isfile(fileprefix + filehash):
             url = myConf.get("paths",repopath) + fetchpay
             try:
-                if(myConf.has_section('debug')):
-                   print(fetchpay)
                 urllib.request.urlretrieve(url, fileprefix + filehash)
+                content = urllib.request.urlopen(url).getheader("Content-Type")
+                contentfile = open(fileprefix + filehash + '_cont', "w")
+                contentfile.write(content)
+                contentfile.close()
             except:
                 return flask.abort(404)
-        if(myConf.has_section('debug')):
-           print(filehash)
-        return flask.send_from_directory(directory=fileprefix, filename=filehash)
+        contentfile = open(fileprefix + filehash + '_cont', "r")
+        content = contentfile.read()
+        respons = flask.send_from_directory(directory=fileprefix,
+                                         mimetype = content,
+                                         filename=filehash)
+        respons.headers['Accept-Ranges'] = 'none'
+        return(respons)
     else:
         return(return_paths())
 
