@@ -16,6 +16,13 @@ the `app.py` file.
 This config file specifies the path `/srv/install/proxy/` as storage for the
 files downloaded.
 
+The config file as it stands gives you proxy config for
++ openSUSE 15.2
++ openSUSE Tumbleweed
++ Centos 8
++ Ubuntu 20.04
+
+
 ### Systemd
 
 For having SystemD handling of the proxy copy the `systemd/repoprox@.service`
@@ -33,6 +40,11 @@ $ for a in $(seq 21610 21624) ; do sudo systemctl start repoprox@$a.service ; do
 
 You will need to adjust the `systemd/repoprox@.service` if you change the
 location of anything above.
+
+### Apache
+
+Inject the config from `apache/proxy.conf` to a virtual host configuration in
+a working Apache config to be able to access the proxy.
 
 ### Cron
 
