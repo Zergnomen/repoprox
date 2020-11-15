@@ -1,0 +1,12 @@
+[Unit]
+Description="Start of RepoProx instance on port #%i"
+After=apache2.service
+
+[Service]
+User=wwwrun
+Group=www
+Environment=PROXY_PORT=%i
+ExecStart=/usr/local/bin/app.py
+
+[Install]
+WantedBy=multi-user.target network-online.target

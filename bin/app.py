@@ -6,7 +6,7 @@ import hashlib
 import os
 import os.path
 proxyPort = os.getenv('PROXY_PORT', 5000)
-myConfile = '../etc/repoproxy.conf'
+myConfile = '/usr/local/etc/repoprox.conf'
 myConf = configparser.RawConfigParser()
 try:
     myConf.read( myConfile )
@@ -39,8 +39,11 @@ def get(repopath,fetchpay):
                 urllib.request.urlretrieve(url, fileprefix + filehash)
                 content = urllib.request.urlopen(url).getheader("Content-Type")
                 contentfile = open(fileprefix + filehash + '_cont', "w")
+                urlfile     = open(fileprefix + filehash + '_url', "w")
                 contentfile.write(content)
+                urlfile.write(repopath + ':' + fetchpay)
                 contentfile.close()
+                urlfile.close()
             except:
                 return flask.abort(404)
         contentfile = open(fileprefix + filehash + '_cont', "r")
